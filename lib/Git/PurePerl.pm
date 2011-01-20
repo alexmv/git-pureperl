@@ -137,29 +137,29 @@ sub _ref_names_recursive {
             my $subbase = $base . $reldir . "/";
             _ref_names_recursive( $file, $subbase, $names );
         } else {
-            push @$names, $base . $file->basename;
+            $names->{$base . $file->basename}++;
         }
     }
 }
 
 sub ref_names {
     my $self = shift;
-    my @names;
+    my %names;
     foreach my $type (qw(heads remotes tags)) {
         my $dir = dir( $self->gitdir, 'refs', $type );
         next unless -d $dir;
         my $base = "refs/$type/";
-        _ref_names_recursive( $dir, $base, \@names );
+        _ref_names_recursive( $dir, $base, \%names );
     }
     my $packed_refs = file( $self->gitdir, 'packed-refs' );
     if ( -f $packed_refs ) {
         foreach my $line ( $packed_refs->slurp( chomp => 1 ) ) {
             next if $line =~ /^#/;
             my ( $sha1, my $name ) = split ' ', $line;
-            push @names, $name;
+            $names{$name}++;
         }
     }
-    return @names;
+    return sort keys %names;
 }
 
 sub refs_sha1 {
