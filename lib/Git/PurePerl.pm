@@ -154,7 +154,7 @@ sub ref_names {
     my $packed_refs = file( $self->gitdir, 'packed-refs' );
     if ( -f $packed_refs ) {
         foreach my $line ( $packed_refs->slurp( chomp => 1 ) ) {
-            next if $line =~ /^#/;
+            next if $line =~ /^#/ or $line =~ /^\^/;
             my ( $sha1, my $name ) = split ' ', $line;
             $names{$name}++;
         }
@@ -201,7 +201,7 @@ sub ref_sha1 {
     my $packed_refs = file( $self->gitdir, 'packed-refs' );
     if ( -f $packed_refs ) {
         foreach my $line ( $packed_refs->slurp( chomp => 1 ) ) {
-            next if $line =~ /^#/;
+            next if $line =~ /^#/ or $line =~ /^\^/;
             my ( $sha1, my $name ) = split ' ', $line;
             if ( $name eq $wantref ) {
                 return $self->ref_sha1($1) if $sha1 =~ /^ref: (.*)/;
